@@ -17,7 +17,10 @@ crop.directive('imgCrop', ['$timeout', 'cropHost', 'cropPubSub', function($timeo
       onChange: '&',
       onLoadBegin: '&',
       onLoadDone: '&',
-      onLoadError: '&'
+      onLoadError: '&',
+
+      areaAspectRatio: '=',
+      areaMoveOnResize: '='
     },
     template: '<canvas></canvas>',
     controller: ['$scope', function($scope) {
@@ -81,6 +84,7 @@ crop.directive('imgCrop', ['$timeout', 'cropHost', 'cropPubSub', function($timeo
       });
       scope.$watch('areaType',function(){
         cropHost.setAreaType(scope.areaType);
+        cropHost.setAreaAspectRatio(scope.areaAspectRatio);
         updateResultImage(scope);
       });
       scope.$watch('areaMinSize',function(){
@@ -98,6 +102,13 @@ crop.directive('imgCrop', ['$timeout', 'cropHost', 'cropPubSub', function($timeo
       scope.$watch('resultImageQuality',function(){
         cropHost.setResultImageQuality(scope.resultImageQuality);
         updateResultImage(scope);
+      });
+      scope.$watch('areaAspectRatio', function () {
+        cropHost.setAreaAspectRatio(scope.areaAspectRatio);
+        updateResultImage(scope);
+      });
+      scope.$watch('areaMoveOnResize', function () {
+        cropHost.setAreaMoveOnResize(!!scope.areaMoveOnResize);
       });
 
       // Update CropHost dimensions when the directive element is resized

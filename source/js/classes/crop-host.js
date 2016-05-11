@@ -1,6 +1,7 @@
 'use strict';
 
-crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'cropEXIF', function($document, CropAreaCircle, CropAreaSquare, cropEXIF) {
+crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'cropEXIF', 'CropAreaRectangle',
+function($document, CropAreaCircle, CropAreaSquare, cropEXIF, CropAreaRectangle) {
   /* STATIC FUNCTIONS */
 
   // Get Element's Offset
@@ -94,6 +95,8 @@ crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'crop
         theArea.setX(ctx.canvas.width/2);
         theArea.setY(ctx.canvas.height/2);
         theArea.setSize(Math.min(200, ctx.canvas.width/2, ctx.canvas.height/2));
+
+
       } else {
         elCanvas.prop('width',0).prop('height',0).css({'margin-top': 0});
       }
@@ -170,8 +173,30 @@ crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'crop
       temp_ctx = temp_canvas.getContext('2d');
       temp_canvas.width = resImgSize;
       temp_canvas.height = resImgSize;
+
+      var areaW, areaH; areaW = areaH = theArea.getSize();
+
+      if(!!theArea.getAspectRatio){
+        var areaAr = theArea.getAspectRatio();
+
+        if(areaAr >= 1){
+          temp_canvas.height = temp_canvas.height / areaAr;
+          areaH = areaH / areaAr;
+        }else{
+          temp_canvas.width = temp_canvas.width * areaAr;
+          areaW = areaW * areaAr;
+        }
+      }
+
       if(image!==null){
-        temp_ctx.drawImage(image, (theArea.getX()-theArea.getSize()/2)*(image.width/ctx.canvas.width), (theArea.getY()-theArea.getSize()/2)*(image.height/ctx.canvas.height), theArea.getSize()*(image.width/ctx.canvas.width), theArea.getSize()*(image.height/ctx.canvas.height), 0, 0, resImgSize, resImgSize);
+        temp_ctx.drawImage(
+          image,
+          (theArea.getX()-areaW/2)*(image.width/ctx.canvas.width),
+          (theArea.getY()-areaH/2)*(image.height/ctx.canvas.height),
+          (areaW)*(image.width/ctx.canvas.width),
+          (areaH)*(image.height/ctx.canvas.height),
+          0, 0,
+          temp_canvas.width, temp_canvas.height);
       }
       if (resImgQuality!==null ){
         return temp_canvas.toDataURL(resImgFormat, resImgQuality);
@@ -290,6 +315,23 @@ crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'crop
       }
     };
 
+    this.setAreaAspectRatio = function (ar) {
+      var arr = (!!ar) ? ar.toString().split(':').slice(0, 2) : [];
+      var arr = arr.map(function (el) { return Math.abs(Number.parseFloat(el)); });
+
+      var a_r = 1;
+      if((arr.length == 2) && (arr[1] != 0)){
+        a_r = (arr[0] / arr[1]) || 1;
+      }else{
+        a_r = arr[0] || 1;
+      }
+
+      if (!!theArea.setAspectRatio){
+        theArea.setAspectRatio(a_r);
+      }
+      drawScene();
+    }
+
     this.setResultImageSize=function(size) {
       size=parseInt(size,10);
       if(!isNaN(size)) {
@@ -314,10 +356,20 @@ crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'crop
           curX=theArea.getX(),
           curY=theArea.getY();
 
-      var AreaClass=CropAreaCircle;
-      if(type==='square') {
-        AreaClass=CropAreaSquare;
+      var AreaClass;
+      switch (type) {
+        case 'square':
+          AreaClass = CropAreaSquare;
+          break;
+        case 'rectangle':
+          AreaClass = CropAreaRectangle;
+          break;
+        default:
+          AreaClass = CropAreaCircle;
       }
+
+      // debugger;
+
       theArea = new AreaClass(ctx, events);
       theArea.setMinSize(curMinSize);
       theArea.setSize(curSize);
@@ -332,6 +384,10 @@ crop.factory('cropHost', ['$document', 'cropAreaCircle', 'cropAreaSquare', 'crop
       drawScene();
     };
 
+
+    this.setAreaMoveOnResize = function (moveOnResize) {
+      theArea.setMoveOnResize(moveOnResize);
+    }
     /* Life Cycle begins */
 
     // Init Context var

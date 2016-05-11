@@ -40,16 +40,20 @@
     Area type:
     <label><input type="radio" ng-model="type" value="circle" /> Circle</label>
     <label><input type="radio" ng-model="type" value="square" /> Square</label>
-    <!--<label><input type="radio" ng-model="type" value="rectangle" /> Rectangle</label>-->
+    <label><input type="radio" ng-model="type" value="rectangle" /> Rectangle</label>
   </div>
   <div>
     <label><input type="checkbox" ng-model="changeOnFly" /> Change On Fly</label>
   </div>
-  <!--
+
   <div>
-    <label>Aspect Ratio: <input type="text" ng-model="aspectRatio" /></label>
+    <label><input type="checkbox" ng-model="areaMoveOnResize" /> Move Aerea On Resize</label>
   </div>
-  -->
+
+  <div>
+    <label>Area Aspect Ratio: <input type="text" ng-model="areaAspectRatio" /></label>
+  </div>
+
   <div>
     <label>Area Min Size (Size = Width = Height): <input type="text" ng-model="selMinSize" /></label>
   </div>
@@ -92,8 +96,9 @@
               on-load-begin="onLoadBegin()"
               on-load-done="onLoadDone()"
               on-load-error="onLoadError()"
+              area-aspect-ratio="areaAspectRatio"
+              area-move-on-resize="areaMoveOnResize"
     ></img-crop>
-              <!--aspect-ratio="aspectRatio"-->
   </div>
 
   <div style="text-align:center">
@@ -107,14 +112,16 @@
     angular.module('app', ['ngImgCrop'])
       .controller('Ctrl', function($scope) {
         $scope.size='small';
-        $scope.type='circle';
+        $scope.type='rectangle';
         $scope.imageDataURI='';
         $scope.resImageDataURI='';
         $scope.resImgFormat='image/png';
         $scope.resImgQuality=1;
         $scope.selMinSize=100;
         $scope.resImgSize=200;
-        //$scope.aspectRatio=1.2;
+        $scope.areaAspectRatio=1.2;
+        $scope.changeOnFly = true;
+        $scope.areaMoveOnResize = true;
         $scope.onChange=function($dataURI) {
           console.log('onChange fired');
         };

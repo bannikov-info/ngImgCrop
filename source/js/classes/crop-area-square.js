@@ -67,7 +67,9 @@ crop.factory('cropAreaSquare', ['cropArea', function(CropArea) {
   };
 
   CropAreaSquare.prototype._drawArea=function(ctx,centerCoords,size){
+    // debugger;
     var hSize=size/2;
+
     ctx.rect(centerCoords[0]-hSize,centerCoords[1]-hSize,size,size);
   };
 
@@ -134,8 +136,12 @@ crop.factory('cropAreaSquare', ['cropArea', function(CropArea) {
       var wasSize=this._size;
       this._size = Math.max(this._minSize, iFR);
       var posModifier=(this._size-wasSize)/2;
-      this._x+=posModifier*xMulti;
-      this._y+=posModifier*yMulti;
+
+      if(this._moveOnResize){
+        this._x+=posModifier*xMulti;
+        this._y+=posModifier*yMulti;
+      }
+
       this._resizeCtrlIsHover = this._resizeCtrlIsDragging;
       res=true;
       this._events.trigger('area-resize');

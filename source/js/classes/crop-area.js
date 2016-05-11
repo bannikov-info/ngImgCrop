@@ -13,6 +13,8 @@ crop.factory('cropArea', ['cropCanvas', function(CropCanvas) {
     this._x = 0;
     this._y = 0;
     this._size = 200;
+
+    this._moveOnResize = true;
   };
 
   /* GETTERS/SETTERS */
@@ -61,12 +63,12 @@ crop.factory('cropArea', ['cropCanvas', function(CropCanvas) {
   CropArea.prototype._dontDragOutside=function() {
     var h=this._ctx.canvas.height,
         w=this._ctx.canvas.width;
-    if(this._size>w) { this._size=w; }
-    if(this._size>h) { this._size=h; }
-    if(this._x<this._size/2) { this._x=this._size/2; }
-    if(this._x>w-this._size/2) { this._x=w-this._size/2; }
-    if(this._y<this._size/2) { this._y=this._size/2; }
-    if(this._y>h-this._size/2) { this._y=h-this._size/2; }
+
+    this._size = Math.min(this._size, w, h);
+
+    this._x = Math.min(Math.max(this._x, this._size/2), w-this._size/2);
+
+    this._y = Math.min(Math.max(this._y, this._size/2), h-this._size/2);
   };
 
   CropArea.prototype._drawArea=function() {};
@@ -81,6 +83,13 @@ crop.factory('cropArea', ['cropCanvas', function(CropCanvas) {
   CropArea.prototype.processMouseDown=function() {};
 
   CropArea.prototype.processMouseUp=function() {};
+
+  CropArea.prototype.setMoveOnResize = function (moveOnResize) {
+    this._moveOnResize = moveOnResize;
+  }
+  CropArea.prototype.getMoveOnResize = function () {
+    return this._moveOnResize;
+  }
 
   return CropArea;
 }]);
